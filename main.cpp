@@ -141,8 +141,8 @@ string** fetch_data(string command1,string command){
 class node{
     public:
     node *next;
-    string issuer_name;//SELF
     string issuer_id;//SELF
+    string issuer_name;//SELF
     string issue_date;//DD-MM-YYYY 
 };
 
