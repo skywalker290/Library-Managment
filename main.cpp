@@ -168,6 +168,7 @@ class book{
     string publisher;//Publisher
     int no_pages;//Pages
     string genere;//Genere
+    int quantity;//quantity
     book *next;//connection pointer
 };
 
@@ -189,6 +190,8 @@ class booklist{
         cout<<"Enter Book Details>>>>\n";
         cout<<"Enter Book_Id:";
         cin>>t->book_id;
+        cout<<"Enter Quantity:";
+        cin>>t->quantity;
         cout<<"Enter author_name:";
         cin>>t->author;
         cout<<"Enter Title:";
@@ -199,6 +202,7 @@ class booklist{
         cin>>t->no_pages;
         cout<<"Enter Genere:";
         cin>>t->genere;
+
         t->next=NULL;
 
         N++;
