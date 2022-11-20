@@ -1,2 +1,2 @@
 # Library-Managment
-using CPP and Mysql cpp connector
+using CPP and Mysql-C++-connector
