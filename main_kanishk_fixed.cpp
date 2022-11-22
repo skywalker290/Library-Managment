@@ -191,7 +191,6 @@ class issuerList{
 
     void book_return(string s)
     {
-
         issuer *p=head;
         if(s==head->issuer_id)
         {
@@ -232,6 +231,8 @@ class book{
     void book_return(string s){
         issuer.book_return(s);
     }
+
+
 };
 
 class booklist{
@@ -688,3 +689,4 @@ int main(){
     return 0;
 }
 
+ 

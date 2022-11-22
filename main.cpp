@@ -48,6 +48,8 @@ string idgenerator(){
 
 }
 
+
+
 class mysql{
 
     public:
@@ -138,26 +140,84 @@ string** fetch_data(string command1,string command){
     // }
 };
 
-class node{
+
+
+class issuer{
     public:
-    node *next;
+    issuer *next;
     string issuer_id;//SELF
     string issuer_name;//SELF
     string issue_date;//DD-MM-YYYY 
 };
 
+
+
 class issuerList{
     public:
-    node *head;
-    node *tail;
-    int N;//TOTAL NODES
+    issuer *head;
+    issuer *tail;
+    int N;//TOTAL issuerS
 
     issuerList(){
         head=NULL;
         tail=NULL;
         N=0;
     }
+
+    issuer* input1(){
+
+        issuer *t=new issuer;
+        cout<<"Enter issuer Details>>>>\n";
+        cout<<"Enter issuer ID:";
+        cin>>t->issuer_id;
+        cout<<"Enter issuer name:";
+        cin>>t->issuer_name;
+        cout<<"Enter issuing date in format DD-MM-YYYY:";
+        cin>>t->issue_date;
+
+        t->next=NULL;
+        return t;
+
+    }
+
+    void issuer_details(){// fthis function inserts the books into the system.
+        N++;
+        if(head==NULL){
+            head=input1();
+            tail=head;
+        }
+        else{
+            issuer *t=input1();
+            tail->next=t;
+            tail=t;
+        }
+    }
+
+    void book_return(string s)
+    {
+
+        issuer *p=head;
+        if(s==head->issuer_id)
+        {
+            head=head->next;
+        }
+        else
+        {
+            while(p)
+            {
+                if(s==p->next->issuer_id)
+                {
+                    p->next=p->next->next;
+                    break;
+                }
+                p=p->next;
+            }
+        }
+        N--;
+    }
 };
+
+
 
 class book{
     public:
@@ -170,7 +230,16 @@ class book{
     string genere;//Genere
     int quantity;//quantity
     book *next;//connection pointer
+
+    void book_issuer(){
+        issuer.issuer_details();
+    }
+    void book_return(string s){
+        issuer.book_return(s);
+    }
 };
+
+
 
 class booklist{
     public:
@@ -231,15 +300,6 @@ class booklist{
         cout<<endl;
 
     }
-
-    // void display_modified(book *H){
-    //     book *t=H;
-    //     while(t){
-    //         cout<<t->title<<" "<<t->book_id<<" \n";
-    //     }
-    //     cout<<endl;
-
-    // }
 
     book* merge(book* firstNode, book* secondNode,int choice){
         book* merged = new book;
@@ -319,10 +379,6 @@ class booklist{
 
         
     }
-
-
-
-
     
     book* middle(book* head){
 
@@ -461,8 +517,155 @@ class booklist{
         }
     }
     
+    void Book_Issue(){//This function is to issue a book
+
+        int id;
+        cout<<"Enter Book_ID:";
+        cin>>id;
+
+        book *b1=head;
+        while(b1){
+            if(b1->book_id==id){
+                break;
+            }
+            b1=b1->next;
+        }
+
+        if(b1->quantity>0){
+            b1->book_issuer();
+            b1->quantity--;
+        }
+        else{
+            cout<<">>Book is not available<<\n";
+        }        
+    }
+
+    void Book_Return(){//This function is to issue a book
+
+        int bid;
+        string Iid;
+        cout<<"Enter Book_ID:";
+        cin>>bid;
+        cout<<"Enter Issuer_ID:";
+        cin>>Iid;
+
+        book *b1=head;
+        while(b1){
+            if(b1->book_id==bid){
+                break;
+            }
+            b1=b1->next;
+        }
+
+    
+        b1->book_return(Iid);
+        b1->quantity++;   
+    }
+
+    void update(){//This function is to update book details stored in book node;
+
+        int b1;
+        int y;
+        book * p=head;
+        while (true)
+        {
+            cout<<"Choose which column you want to update: "<<endl;
+            cout<<"1-Title"<<endl;
+            cout<<"2-Publisher"<<endl;
+            cout<<"3-Author"<<endl;
+            cout<<"4-Genere"<<endl;
+            cout<<"5-Quantity"<<endl;
+            cout<<"0-Exit"<<endl;
+            cout<<"Input>>>";
+            cin>>y;
+            cout<<"Enter book ID whose detail you want to update"<<endl;
+            cout<<"Input>>>";
+            cin>>b1;
+            while(p){
+
+                if(p->book_id==b1)
+                {
+                    break;
+                }
+                p=p->next;
+            }
+
+            if(y==1){
+
+                string b2;
+                cout<<"Enter new Title:"<<endl;
+                cin>>b2;
+                p->title=b2;
+            }
+            else if(y==2){
+                
+                string b2;
+                cout<<"Enter new Author:"<<endl;
+                cin>>b2;
+                p->author=b2;
+            }
+            else if(y==3){
+
+                string b2;
+                cout<<"Enter new Publisher:"<<endl;
+                cin>>b2;
+                p->publisher=b2;
+            }
+            else if(y==4){
+
+                string b2;
+                cout<<"Enter new Genere:"<<endl;
+                cin>>b2;
+                p->genere=b2;
+            }
+            else if(y==5){
+
+                int b2;
+                cout<<"Enter new Quantity:"<<endl;
+                cin>>b2;
+                p->quantity=b2;
+            }
+            else
+            {
+                break;
+            }
+
+        }
+
+    }
+
 };
 
+
+
+class logintree{
+    
+};
+
+
+
+class login{
+    public:
+    string username;
+    string password;
+    
+
+    string typespec(string username){
+        if(username[0]=='A'){
+            adminlogin();
+        }
+        else if(username[0]=='U'){
+            userlogin();
+        }
+        else{
+            return "Invalid Username";
+        }
+    }
+
+    void adminlogin();
+    void userlogin();
+
+};
 
 int main(){
 
