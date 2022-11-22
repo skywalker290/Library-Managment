@@ -1,5 +1,144 @@
 #include <iostream>
+#include <bits/stdc++.h>
+#include <mysql/mysql.h>
 using namespace std;
+
+string Dateoftoday;
+
+char Database[]="test";
+
+string itos(int num){
+	ostringstream str1;
+
+	str1 << num;
+
+	string istring = str1.str();
+
+	if(num<10){
+        istring="0"+istring;
+	}
+
+	return istring;
+}
+
+int stoii(string s){
+
+    stringstream str(s);
+    
+    int x = 0;
+    str >> x;
+ 
+    return x;
+}
+
+string idgenerator(){
+
+    time_t now = time(0);
+
+    tm *ltm = localtime(&now);
+
+    string b_id=
+    itos(1900 + ltm->tm_year) + itos( 1+ ltm->tm_mon)
+    + itos(ltm->tm_mday) + itos(ltm->tm_hour)
+    + itos(ltm->tm_min) + itos(ltm->tm_sec);
+
+    // cout<<"bill no"<<b_id;
+
+    Dateoftoday=itos(1900 + ltm->tm_year)+"-"+itos( 1+ ltm->tm_mon)+"-"+itos(ltm->tm_mday);
+    return b_id;
+
+}
+
+class mysql{
+
+    public:
+    int row_c,fields_c;
+    int count=0;
+    string **results;
+
+    MYSQL *connect(){
+
+    MYSQL * conn;
+    MYSQL * conn1;
+    conn=mysql_init(NULL);
+    conn1=mysql_real_connect(conn,"localhost","root","aaaa",Database,3306,NULL,0);
+    if (conn1){
+        // cout<<"Connected\n";
+    }
+    
+
+    else{
+        cout<<"[Not Connected]\n";
+        cout<<mysql_error(conn)<<endl<<mysql_errno(conn)<<endl;
+
+    }
+    return conn;
+}
+
+void insert(string command){
+    MYSQL *conn=connect();
+    int status;
+    status=mysql_query(conn,command.c_str());
+
+    if(status==0){
+        // cout<<"Inserted!\n";
+    }
+
+    else{
+        cout<<"[Not Exceuted!]\n";
+        cout<<mysql_error(conn)<<endl<<mysql_errno(conn)<<endl;
+    }
+    status=mysql_query(conn,"exit;");
+}
+
+
+string** fetch_data(string command1,string command){
+    MYSQL *conn=connect();
+    MYSQL *conn1=connect();
+
+    int status,status1;
+    status1=mysql_query(conn1,command1.c_str());
+
+    MYSQL_ROW row1;
+    MYSQL_RES *res1;
+
+    res1=mysql_store_result(conn1);
+    row1=mysql_fetch_row(res1);
+    status=mysql_query(conn,command.c_str());
+
+    MYSQL_ROW row;
+    MYSQL_RES* res;
+
+    row_c=atoi(row1[0]);
+    res=mysql_store_result(conn);
+    row=mysql_fetch_row(res);
+    fields_c=mysql_field_count(conn);
+
+    results=new string*[row_c+1];
+
+    for(int i=0;i<row_c;i++){
+        results[i]=new string[fields_c+1];
+    }
+
+    
+    while(row!=0){
+        for(int i=0;i<fields_c+1;i++){
+            results[count][i]=row[i];
+        }
+        row=mysql_fetch_row(res);
+        count++;
+        
+    }
+    results[count]=NULL;
+
+    return results;
+    }
+
+    // ~mysql(){
+    //     delete results;
+    // }
+};
+
 
 class issuer{
     public:
