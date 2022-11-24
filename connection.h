@@ -1,22 +1,18 @@
-#include <iostream>
 #include <bits/stdc++.h>
 #include <mysql/mysql.h>
 using namespace std;
 
 
-
-
-
-
-
+void adminlogin();
+void userlogin();
 
 
 
 string Dateoftoday;
 
-char Database[]="test";
+char Database[]="LMS";
 
-string itos(int num){
+string itos(int num){//integer to string
 	ostringstream str1;
 
 	str1 << num;
@@ -89,7 +85,6 @@ class mysql{
     else{
         cout<<"[Not Connected]\n";
         cout<<mysql_error(conn)<<endl<<mysql_errno(conn)<<endl;
-
     }
     return conn;
 }
@@ -141,7 +136,7 @@ string** fetch_data(string command1,string command){
 
     
     while(row!=0){
-        for(int i=0;i<fields_c+1;i++){
+        for(int i=0;i<fields_c;i++){
             results[count][i]=row[i];
         }
         row=mysql_fetch_row(res);
@@ -182,7 +177,6 @@ class issuerList{
     }
 
     issuer* input1(){
-
         issuer *t=new issuer;
         cout<<"Enter issuer Details>>>>\n";
         cout<<"Enter issuer ID:";
@@ -209,9 +203,29 @@ class issuerList{
             tail=t;
         }
     }
+    
+    void issuer_details_insert(string id,string name,string date){// fthis function inserts the books into the system.
+        N++;
+
+        issuer *t=new issuer;
+        t->issuer_name=name;
+        t->issuer_id=id;
+        t->issue_date=date;
+        t->next=NULL;
+
+        if(head==NULL){
+            head=t;
+            tail=head;
+        }
+        else{
+            // issuer *t=Iss;
+            tail->next=t;
+            tail=t;
+        }
+    }
 
     void book_return(string s)
-    {
+    {//s=id;
 
         issuer *p=head;
         if(s==head->issuer_id)
@@ -232,13 +246,22 @@ class issuerList{
         }
         N--;
     }
+
+    void issuer_display(){
+        issuer *t=head;
+
+        while(t){
+            cout<<t->issuer_id<<",\t"<<t->issuer_name<<",\t"<<t->issue_date<<endl;
+            t=t->next;
+        }
+    }
 };
 
 
 
 class book{
     public:
-    int book_id;//SELF
+    string book_id;//SELF
     string author;//AUTHOR_NAME
     issuerList issuer;//ISSUER DETAILS
     string title;//BOOK TITLE
@@ -253,6 +276,11 @@ class book{
     }
     void book_return(string s){
         issuer.book_return(s);
+    }
+    void display(){
+        cout<<endl<<book_id<<",\t"<<author<<",\t"<<title<<",\t"
+        <<publisher<<",\t"<<no_pages<<",\t"<<genere<<",\t"<<quantity
+        <<endl;
     }
 };
 
@@ -296,6 +324,20 @@ class booklist{
         return t;
     }
 
+    void book_insert(string id,int quan,string auth,string titl,string pub,int pgno, string Gen){
+    
+        book *t=new book;
+        t->book_id=id;
+        t->quantity=quan;
+        t->author=auth;
+        t->title=titl;
+        t->publisher=pub;
+        t->no_pages=pgno;
+        t->genere=Gen;
+
+        insert_force(t);
+    }
+
     void insert(){// fthis function inserts the books into the system.
         if(head==NULL){
             head=input();
@@ -308,6 +350,17 @@ class booklist{
         }
     }
 
+    void insert_force(book *tt){// fthis function inserts the books into the system.
+        if(head==NULL){
+            head=tt;
+            tail=head;
+        }
+        else{
+            book *t=tt;
+            tail->next=t;
+            tail=t;
+        }
+    }
 
     void display_current(){
         book *t=head;
@@ -426,13 +479,12 @@ class booklist{
     }
 
     void sort_books(){
-        cout<<"\n0->Along Book_Id\n";
+        cout<<"0->Along Book_Id\n";
         cout<<"1->Along Title\n";
         cout<<"2->Along Genere\n";
         cout<<"Enter Sorting Along:";
         int choice;
         cin>>choice;
-
 
         head=sort(head,choice);
         display_current();
@@ -533,10 +585,48 @@ class booklist{
             }
         }
     }
+
+    void Book_Issue_insert(string id,string I_id,string name,string date){//This function is to issue a book
+
+
+        book *b1=head;
+        while(b1){
+            if(b1->book_id==id){
+                break;
+            }
+            b1=b1->next;
+        }
+
+        if(b1->quantity>0 && b1){
+            b1->issuer.issuer_details_insert(I_id,name,date);
+            b1->quantity--;
+        }
+        else{
+            cout<<">>Book is not available<<\n";
+        }        
+    }
+
+    void issuer_display(){
+        string id;
+        cout<<"Enter Book ID:";
+        cin>>id;
+
+        book *t=head;
+
+        while(t){
+            if(t->book_id==id){
+                t->issuer.issuer_display();
+                break;
+            }
+        }
+    }
+
+
+
     
     void Book_Issue(){//This function is to issue a book
 
-        int id;
+        string id;
         cout<<"Enter Book_ID:";
         cin>>id;
 
@@ -548,7 +638,7 @@ class booklist{
             b1=b1->next;
         }
 
-        if(b1->quantity>0){
+        if(b1->quantity>0 && b1){
             b1->book_issuer();
             b1->quantity--;
         }
@@ -559,7 +649,7 @@ class booklist{
 
     void Book_Return(){//This function is to issue a book
 
-        int bid;
+        string bid;
         string Iid;
         cout<<"Enter Book_ID:";
         cin>>bid;
@@ -581,7 +671,7 @@ class booklist{
 
     void update(){//This function is to update book details stored in book node;
 
-        int b1;
+        string b1;
         int y;
         book * p=head;
         while (true)
@@ -648,7 +738,17 @@ class booklist{
             }
 
         }
+    }
 
+    void search(string id){
+        book *t=head;
+
+        while(t){
+            if(t->book_id==id){
+                t->display();
+                break;
+            }
+        }
     }
 
 };
@@ -659,8 +759,8 @@ class Cred
 	public:
 	string username;
 	string password;
-	Cred *left;
-	Cred *right;
+	Cred *lchild;
+	Cred *rchild;
 	int height;
 };
 
@@ -757,9 +857,9 @@ class loginData{
     {
         Cred* CCred = new Cred();
         CCred->username = username;
-        CCred->password = username;
-        CCred->left = NULL;
-        CCred->right = NULL;
+        CCred->password = password;
+        CCred->lchild = NULL;
+        CCred->rchild = NULL;
         CCred->height = 1; // new Cred is initially
                         // added at leaf
         return(CCred);
@@ -782,18 +882,18 @@ class loginData{
 
     Cred *rightRotate(Cred *y)
     {
-        Cred *x = y->left;
-        Cred *T2 = x->right;
+        Cred *x = y->lchild;
+        Cred *T2 = x->rchild;
 
         // Perform rotation
-        x->right = y;
-        y->left = T2;
+        x->rchild = y;
+        y->lchild = T2;
 
         // Update heights
-        y->height = max(height(y->left),
-                        height(y->right)) + 1;
-        x->height = max(height(x->left),
-                        height(x->right)) + 1;
+        y->height = max(height(y->lchild),
+                        height(y->rchild)) + 1;
+        x->height = max(height(x->lchild),
+                        height(x->rchild)) + 1;
 
         // Return new root
         return x;
@@ -801,18 +901,18 @@ class loginData{
 
     Cred *leftRotate(Cred *x)
     {
-        Cred *y = x->right;
-        Cred *T2 = y->left;
+        Cred *y = x->rchild;
+        Cred *T2 = y->lchild;
 
         // Perform rotation
-        y->left = x;
-        x->right = T2;
+        y->lchild = x;
+        x->rchild = T2;
 
         // Update heights
-        x->height = max(height(x->left),
-                        height(x->right)) + 1;
-        y->height = max(height(y->left),
-                        height(y->right)) + 1;
+        x->height = max(height(x->lchild),
+                        height(x->rchild)) + 1;
+        y->height = max(height(y->lchild),
+                        height(y->rchild)) + 1;
 
         // Return new root
         return y;
@@ -822,7 +922,7 @@ class loginData{
     {
         if (N == NULL)
             return 0;
-        return height(N->left) - height(N->right);
+        return height(N->lchild) - height(N->rchild);
     }
 
     Cred* push(Cred* Cred, string username,string password)
@@ -838,15 +938,15 @@ class loginData{
         }
             
         if (username < Cred->username)
-            Cred->left = push(Cred->left, username,password);
+            Cred->lchild = push(Cred->lchild, username,password);
         else if (username > Cred->username)
-            Cred->right = push(Cred->right, username,password);
+            Cred->rchild = push(Cred->rchild, username,password);
         else
             return Cred;
 
         /* 2. Update height of this ancestor Cred */
-        Cred->height = 1 + max(height(Cred->left),
-                            height(Cred->right));
+        Cred->height = 1 + max(height(Cred->lchild),
+                            height(Cred->rchild));
 
         /* 3. Get the balance factor of this ancestor
             Cred to check whether this Cred became
@@ -857,24 +957,24 @@ class loginData{
         // there are 4 cases
 
         // Left Left Case
-        if (balance > 1 && username < Cred->left->username)
+        if (balance > 1 && username < Cred->lchild->username)
             return rightRotate(Cred);
 
         // Right Right Case
-        if (balance < -1 && username > Cred->right->username)
+        if (balance < -1 && username > Cred->rchild->username)
             return leftRotate(Cred);
 
         // Left Right Case
-        if (balance > 1 && username > Cred->left->username)
+        if (balance > 1 && username > Cred->lchild->username)
         {
-            Cred->left = leftRotate(Cred->left);
+            Cred->lchild = leftRotate(Cred->lchild);
             return rightRotate(Cred);
         }
 
         // Right Left Case
-        if (balance < -1 && username < Cred->right->username)
+        if (balance < -1 && username < Cred->rchild->username)
         {
-            Cred->right = rightRotate(Cred->right);
+            Cred->rchild = rightRotate(Cred->rchild);
             return leftRotate(Cred);
         }
 
@@ -887,8 +987,8 @@ class loginData{
         Cred* current = CCred;
 
         /* loop down to find the leftmost leaf */
-        while (current->left != NULL)
-            current = current->left;
+        while (current->lchild != NULL)
+            current = current->lchild;
 
         return current;
     }
@@ -896,33 +996,33 @@ class loginData{
     Cred* deleteCred(Cred* root, string username)
     {
         
-        // STEP 1: PERFORM STANDARD BST DELETE
+        // first: Do simple BST deletion in the tree
         if (root == NULL)
             return root;
 
         // If the username to be deleted is smaller
-        // than the root's username, then it lies
+        // than the root->username, then it will be
         // in left subtree
         if ( username < root->username )
-            root->left = deleteCred(root->left, username);
+            root->lchild = deleteCred(root->lchild, username);
 
         // If the username to be deleted is greater
         // than the root's username, then it lies
         // in right subtree
         else if( username > root->username )
-            root->right = deleteCred(root->right, username);
+            root->rchild = deleteCred(root->rchild, username);
 
         // if username is same as root's username, then
         // This is the Cred to be deleted
         else
         {
             // Cred with only one child or no child
-            if( (root->left == NULL) ||
-                (root->right == NULL) )
+            if( (root->lchild == NULL) ||
+                (root->rchild == NULL) )
             {
-                Cred *temp = root->left ?
-                            root->left :
-                            root->right;
+                Cred *temp = root->lchild ?
+                            root->lchild :
+                            root->rchild;
 
                 // No child case
                 if (temp == NULL)
@@ -939,14 +1039,14 @@ class loginData{
             {
                 // Cred with two children: Get the inorder
                 // successor (smallest in the right subtree)
-                Cred* temp = minValueCred(root->right);
+                Cred* temp = minValueCred(root->rchild);
 
                 // Copy the inorder successor's
                 // data to this Cred
                 root->username = temp->username;
 
                 // Delete the inorder successor
-                root->right = deleteCred(root->right,
+                root->rchild = deleteCred(root->rchild,
                                         temp->username);
             }
         }
@@ -957,8 +1057,8 @@ class loginData{
         return root;
 
         // STEP 2: UPDATE HEIGHT OF THE CURRENT Cred
-        root->height = 1 + max(height(root->left),
-                            height(root->right));
+        root->height = 1 + max(height(root->lchild),
+                            height(root->rchild));
 
         // STEP 3: GET THE BALANCE FACTOR OF
         // THIS Cred (to check whether this
@@ -970,27 +1070,27 @@ class loginData{
 
         // Left Left Case
         if (balance > 1 &&
-            getBalance(root->left) >= 0)
+            getBalance(root->lchild) >= 0)
             return rightRotate(root);
 
         // Left Right Case
         if (balance > 1 &&
-            getBalance(root->left) < 0)
+            getBalance(root->lchild) < 0)
         {
-            root->left = leftRotate(root->left);
+            root->lchild = leftRotate(root->lchild);
             return rightRotate(root);
         }
 
         // Right Right Case
         if (balance < -1 &&
-            getBalance(root->right) <= 0)
+            getBalance(root->rchild) <= 0)
             return leftRotate(root);
 
         // Right Left Case
         if (balance < -1 &&
-            getBalance(root->right) > 0)
+            getBalance(root->rchild) > 0)
         {
-            root->right = rightRotate(root->right);
+            root->rchild = rightRotate(root->rchild);
             return leftRotate(root);
         }
 
@@ -1006,12 +1106,12 @@ class loginData{
             if(t!=NULL){
                 cout<<t->username<<" ";
                 st.push(t);
-                t=t->left;
+                t=t->lchild;
             }
 
             else{
                 t=st.pop();
-                t=t->right;
+                t=t->rchild;
             }
         }
 
@@ -1025,13 +1125,13 @@ class loginData{
             
             if(t!=NULL){
                 st.push(t);
-                t=t->left;
+                t=t->lchild;
             }
 
             else{
                 t=st.pop();
                 cout<<t->username<<" ";
-                t=t->right;
+                t=t->rchild;
             }
         }
 
@@ -1046,12 +1146,12 @@ class loginData{
             if(t!=NULL){
                 cout<<t->username<<" ";
 
-                if(t->left!=NULL){
-                    q.enqueue(t->left);
+                if(t->lchild!=NULL){
+                    q.enqueue(t->lchild);
                 }
                 
-                if(t->right!=NULL){
-                    q.enqueue(t->right);
+                if(t->rchild!=NULL){
+                    q.enqueue(t->rchild);
                 }
             }
         }
@@ -1065,18 +1165,15 @@ class loginData{
                 return t;
             }
             else if(key<(t->username)){
-                t=t->left;
+                t=t->lchild;
             }
             else{
-                t=t->right;
+                t=t->rchild;
             }
         }
         return NULL;
     }
 
-    void chooseuser(){
-
-    }
 
 
 };
@@ -1086,49 +1183,74 @@ class login{
     string username;
     string password;
     
+    string type;
 
-    string typespec(string username){
+    login(){
+        cout<<"Enter Username:";
+        cin>>username;
+        cout<<"Enter Password:";
+        cin>>password;
+        typespec();
+    }
+
+    login(string user,string pas){
+        username=user;
+        password=pas;
+
+        int flag=0;
+
+        typespec();
+    }
+
+    
+    int typespec(){
         if(username[0]=='A'){
-            adminlogin();
+            type="Admin";
+            return 11;
         }
         else if(username[0]=='U'){
-            userlogin();
+            type="User";
+            return 1;
         }
         else{
-            return "Invalid Username";
+            type="INVALID";
+            return 0;
         }
     }
+    
+    int Authentication(loginData &admin,loginData &user){
 
-    void adminlogin(){
-        int choice=0;
-        system("clear");
-        // cout<<"Hello"<<
-        cout<<"Enter Your Choice:";
+        int flag=0;
+
+
+        if(type=="User"){
+            Cred* temp=user.search(username);
+            if(temp->password==password){
+                flag=1;
+            }
+        }
+        else if(type=="Admin"){
+            Cred *temp=admin.search(username);
+            if(temp->password==password){
+                flag=11;
+            }
+        }
+        else{
+            cout<<"INVALID CREDENTIALS!\n";
+            flag=0;
+            return -1;
+        }
+
+        if(flag==1){
+            userlogin();
+        }
+        else if(flag==11){
+            adminlogin();
+        }
     }
-    void userlogin(){
-
-    }
-
 };
 
-void Authentication(){
 
-
-
-
-    string userN;
-    string passwD;
-    login skywalker;
-
-    cout<<"Enter Username:";
-    cin>>userN;
-    cout<<"Enter Password:";
-    cin>>passwD;
-
-    skywalker.username=userN;
-    skywalker.password=passwD;
-
-}
 
 
 
