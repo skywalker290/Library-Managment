@@ -103,6 +103,8 @@ void insert(string command){
         cout<<mysql_error(conn)<<endl<<mysql_errno(conn)<<endl;
     }
     status=mysql_query(conn,"exit;");
+    mysql_close(conn);
+    // conn->close();
 }
 
 
@@ -144,6 +146,9 @@ string** fetch_data(string command1,string command){
         
     }
     results[count]=NULL;
+
+    mysql_close(conn);
+    // conn->close();
 
     return results;
     }
@@ -324,16 +329,17 @@ class booklist{
         return t;
     }
 
-    void book_insert(string id,int quan,string auth,string titl,string pub,int pgno, string Gen){
+    void book_insert(string id,string auth,string titl,string pub,int pgno, string Gen){
     
         book *t=new book;
         t->book_id=id;
-        t->quantity=quan;
+        t->quantity=100;
         t->author=auth;
         t->title=titl;
         t->publisher=pub;
         t->no_pages=pgno;
         t->genere=Gen;
+        t->next=NULL;
 
         insert_force(t);
     }
@@ -356,16 +362,17 @@ class booklist{
             tail=head;
         }
         else{
-            book *t=tt;
-            tail->next=t;
-            tail=t;
+            tail->next=tt;
+            tail=tt;
         }
     }
 
     void display_current(){
         book *t=head;
         while(t){
-            cout<<t->title<<" "<<t->book_id<<" \n";
+            // cout<<">>"<<t->book_id<<","<<t->title<<"\n";
+            t->display();
+            t=t->next;
         }
         cout<<endl;
 
@@ -509,9 +516,10 @@ class booklist{
             }    
         }
 
-        for(i;text[i]!='_' || text[i]!='%' || text[i];i++){
+        for(i;(text[i]!='_' || text[i]!='%' )&&  text[i];i++){
                 key=key+text[i];
         }
+        cout<<key;
 
 
         if(text[len]=='%'){
@@ -541,7 +549,7 @@ class booklist{
                         }
                     }
                     if(test==1){
-                        cout<<t->book_id<<" "<<t->title<<endl;
+                        cout<<t->book_id<<"\t"<<t->title<<endl;
                     }
                 }
             }
@@ -580,9 +588,26 @@ class booklist{
                     if(test==1){
                         cout<<t->book_id<<" "<<t->title<<endl;
                     }
-                }
+                }   
                 
             }
+
+            t=t->next;
+        }
+    }
+
+
+    void like_search_2(string key){
+        book *t=head;
+
+        while(t){
+            int len=t->title.length();
+            int temp=t->title.find(key);
+
+            if(temp>=0 && temp<len ){
+                t->display();
+            }
+            t=t->next;
         }
     }
 
@@ -618,6 +643,7 @@ class booklist{
                 t->issuer.issuer_display();
                 break;
             }
+            t=t->next;
         }
     }
 
@@ -664,9 +690,15 @@ class booklist{
             b1=b1->next;
         }
 
-    
-        b1->book_return(Iid);
-        b1->quantity++;   
+        if(b1){
+            b1->book_return(Iid);
+            b1->quantity++;   
+            cout<<"\nBook Returned!\n";
+        }
+        else{
+            cout<<"book ID not found;";
+        }
+
     }
 
     void update(){//This function is to update book details stored in book node;
@@ -748,6 +780,7 @@ class booklist{
                 t->display();
                 break;
             }
+            t=t->next;
         }
     }
 
@@ -867,6 +900,15 @@ class loginData{
 
     void insert(string username,string password){//only admin users can insert new user either admin or normald
         root=push(root,username,password);
+    }
+
+    void manual_insert(){
+        string usr,psd;
+        cout<<"Enter Username:";
+        cin>>usr;
+        cout<<"Enter Password:";
+        cin>>psd;
+        
     }
 
     void Delete(string username){//Only Admin users can delete
@@ -995,7 +1037,6 @@ class loginData{
 
     Cred* deleteCred(Cred* root, string username)
     {
-        
         // first: Do simple BST deletion in the tree
         if (root == NULL)
             return root;
@@ -1174,7 +1215,7 @@ class loginData{
         return NULL;
     }
 
-
+    Cred * insert()
 
 };
 
@@ -1225,19 +1266,21 @@ class login{
 
         if(type=="User"){
             Cred* temp=user.search(username);
-            if(temp->password==password){
+            if(temp)
+            if(temp->password==password ){
                 flag=1;
             }
         }
         else if(type=="Admin"){
             Cred *temp=admin.search(username);
-            if(temp->password==password){
+            if(temp)
+            if(temp->password==password && temp){
                 flag=11;
             }
         }
         else{
             cout<<"INVALID CREDENTIALS!\n";
-            flag=0;
+            flag=-1;
             return -1;
         }
 
@@ -1246,6 +1289,9 @@ class login{
         }
         else if(flag==11){
             adminlogin();
+        }
+        else if(flag==0){
+            cout<<"Wrong Credentials";
         }
     }
 };

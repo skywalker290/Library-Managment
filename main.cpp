@@ -3,10 +3,10 @@
 #include "connection.h"
 using namespace std;
 
-login skywalker("Askywalker290","letshackitof");
-loginData admin;
-loginData user;
-booklist LRC;
+login skywalker("Uskywalker290","letshackitof");
+loginData admin;//AVL
+loginData user;//AVL
+booklist LRC;//LINKED LIST
 
 // login skywalker("A","B");    
 
@@ -59,104 +59,132 @@ void Insert_Data_Admin(string **data){
 void Insert_Data_LRC(string **data){
 
     for(int i=0;data[i];i++){
-        LRC.book_insert(data[i][0],stoi(data[i][1]),data[i][2],data[i][3],data[i][4],stoi(data[i][5]),data[i][6]);
+        LRC.book_insert(data[i][0],data[i][1],data[i][2],data[i][3],stoii(data[i][4]),data[i][5]);
     }
 
 }
 
 void Insert_Data_Issuer(string **data){
     for(int i=0;data[i];i++){
-        LRC.book_insert(data[i][0],stoi(data[i][1]),data[i][2],data[i][3],data[i][4],stoi(data[i][5]),data[i][6]);
+        LRC.Book_Issue_insert(data[i][0],data[i][1],data[i][2],data[i][3]);
     }
 }
 
 void adminlogin(){
 
-    int choice=0;
-    system("clear");
-    cout<<"<<<Hello Admin>>>\n";
-    cout<<"1->Add New Book\n";
-    cout<<"2->Search Book\n";
-    cout<<"3->LIKE Search Book\n";
-    cout<<"4->Update Book Details\n";
-    cout<<"5->Sort Books\n";
-    cout<<"6->Issue Book\n";
-    cout<<"7->Return Book\n";
-    cout<<"8->Display\n";
-    cout<<"9->Issuer of a Book\n";
-    cout<<"Enter Your Choice:";
-    cin>>choice;
 
-    if(choice==1){
-        LRC.insert();
-    }
-    
-    else if (choice==2){
-        string id;
-        cout<<"Enter Book ID:";
-        LRC.search(id);
-    }
-    else if(choice==3){
-        string titlee;
-        cout<<"Enter Title To be searched of using '%' and '_':";
-        LRC.like_search(titlee);
-    }
-    else if(choice==4){
-        string titlee;
-        cout<<"Enter Title To be searched of using '%' and '_':";
-        LRC.like_search(titlee);
-    }
-    else if(choice==5){
+    int choice=0;
+    while(choice<10){
+        // system("clear");
+        cout<<"\n===============================\n";
+        cout<<"<<<Hello Admin>>>\n";
+        cout<<"1->Add New Book\n";
+        cout<<"2->Search Book\n";
+        cout<<"3->LIKE Search Book\n";
+        cout<<"4->Update Book Details\n";
+        cout<<"5->Sort Books\n";
+        cout<<"6->Issue Book\n";
+        cout<<"7->Return Book\n";
+        cout<<"8->Display\n";
+        cout<<"9->Issuer of a Book\n";
+        cout<<"10->Add User login\n";
+        cout<<"Enter Your Choice:";
+        cin>>choice;
+
         cout<<"\n=========================\n";
-        LRC.sort_books();
-    }
-    else if(choice==6){
-        LRC.Book_Issue();
-    }
-    else if(choice==7){
-        LRC.Book_Return();
-    }
-    else if(choice==8){
-        LRC.display_current();
-    }
-    else if(choice==9){
-        LRC.issuer_display();
+
+        if(choice==1){
+            LRC.insert();
+            cout<<"\n=========================\n";
+            LRC.display_current();
+        }
+        
+        else if (choice==2){
+            string id;
+            cout<<"Enter Book ID:";
+            cin>>id;
+            LRC.search(id);
+
+        }
+        else if(choice==3){
+            string titlee;
+            cout<<"Enter Approx Title To be searched of :";
+            cin>>titlee;
+            LRC.like_search_2(titlee);
+
+        }
+        else if(choice==4){
+            string titlee;
+            // cout<<"Enter Title To be searched of using '%' and '_':";
+            LRC.update();
+
+        }
+        else if(choice==5){
+            cout<<"\n=========================\n";
+            LRC.sort_books();
+
+        }
+        else if(choice==6){
+            LRC.Book_Issue();
+
+        }
+        else if(choice==7){
+            LRC.Book_Return();
+
+        }
+        else if(choice==8){
+            LRC.display_current();
+
+        }
+        else if(choice==9){
+            LRC.issuer_display();
+
+        }
+        else if(choice==10){
+            
+        }
+
     }
 
 }
 
 
 void userlogin(){
-
-    int choice=0;
-    system("clear");
-    cout<<"<<<Hello User>>>\n";
-    cout<<"1->Search Book\n";
-    cout<<"2->LIKE Search Book\n";
-    cout<<"3->Sort Books\n";
-    cout<<"4->Display\n:";
-    cout<<"Enter Your Choice:";
-    cin>>choice;
-
-    if (choice==2){
-        string id;
-        cout<<"Enter Book ID:";
-        LRC.search(id);
-    }
-    else if(choice==2){
-        string titlee;
-        cout<<"Enter Title To be searched of using '%' and '_':";
-        LRC.like_search(titlee);
-    }
-    else if(choice==3){
+int choice=0;
+    while(choice<5){
+        
         cout<<"\n=========================\n";
-        LRC.sort_books();
-        cout<<endl;
-    }
+        cout<<"<<<Hello User>>>\n";
+        cout<<"1->Search Book\n";
+        cout<<"2->LIKE Search Book\n";
+        cout<<"3->Sort Books\n";
+        cout<<"4->Display\n:";
+        cout<<"Enter Your Choice:";
+        cin>>choice;
+        cout<<"\n=========================\n";
 
-    else if(choice==4){
-        LRC.display_current();
-    }
+        if (choice==1){
+            string id;
+            cout<<"Enter Book ID:";
+            cin>>id;
+            LRC.search(id);
+        }
+        else if(choice==2){
+            string titlee;
+            cout<<"Enter Approx Titile :";
+            cin>>titlee;
+            LRC.like_search_2(titlee);
+        }
+        else if(choice==3){
+            cout<<"\n=========================\n";
+            LRC.sort_books();
+            cout<<endl;
+        }
+
+        else if(choice==4){
+            LRC.display_current();
+        }
+    }   
 }
 
 
@@ -167,12 +195,14 @@ int main(){
     cout<<"\n================================\n";
     
     skywalker.Authentication(admin,user);
-    cout<<skywalker.type;
-    user.preorder();
+    // cout<<skywalker.type;
+    // user.preorder();
 
     cout<<endl;
 
-    admin.preorder();
+    // admin.preorder();
+
+    
 
     cout<<"\n================================\n";
     return 0;
