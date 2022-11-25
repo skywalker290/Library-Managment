@@ -10,9 +10,9 @@ void userlogin();
 
 string Dateoftoday;
 
-char Database[]="LMS";
+char Database[]="LMS";//Database that we are using to fetch data into our Program
 
-string itos(int num){//integer to string
+string itos(int num){//integer to string typecasting
 	ostringstream str1;
 
 	str1 << num;
@@ -26,7 +26,7 @@ string itos(int num){//integer to string
 	return istring;
 }
 
-int stoii(string s){
+int stoii(string s){//string to integer typecasting 
 
     stringstream str(s);
     
@@ -36,23 +36,7 @@ int stoii(string s){
     return x;
 }
 
-string idgenerator(){
 
-    time_t now = time(0);
-
-    tm *ltm = localtime(&now);
-
-    string b_id=
-    itos(1900 + ltm->tm_year) + itos( 1+ ltm->tm_mon)
-    + itos(ltm->tm_mday) + itos(ltm->tm_hour)
-    + itos(ltm->tm_min) + itos(ltm->tm_sec);
-
-    // cout<<"bill no"<<b_id;
-
-    Dateoftoday=itos(1900 + ltm->tm_year)+"-"+itos( 1+ ltm->tm_mon)+"-"+itos(ltm->tm_mday);
-    return b_id;
-
-}
 
 int max(int a, int b)
 {
@@ -63,7 +47,7 @@ int max(int a, int b)
 
 
 
-
+//Mysql Class used to connect the program with mysql server root@localhost;
 class mysql{
 
     public:
@@ -71,7 +55,7 @@ class mysql{
     int count=0;
     string **results;
 
-    MYSQL *connect(){
+    MYSQL *connect(){//Function to make connection varibale with the server and returns the varible to run querry
 
     MYSQL * conn;
     MYSQL * conn1;
@@ -87,9 +71,11 @@ class mysql{
         cout<<mysql_error(conn)<<endl<<mysql_errno(conn)<<endl;
     }
     return conn;
-}
+    }
 
-void insert(string command){
+
+    //Function to execute insert querry;
+    void insert(string command){
     MYSQL *conn=connect();
     int status;
     status=mysql_query(conn,command.c_str());
@@ -105,53 +91,57 @@ void insert(string command){
     status=mysql_query(conn,"exit;");
     mysql_close(conn);
     // conn->close();
-}
-
-
-string** fetch_data(string command1,string command){
-    MYSQL *conn=connect();
-    MYSQL *conn1=connect();
-
-    int status,status1;
-    status1=mysql_query(conn1,command1.c_str());
-
-    MYSQL_ROW row1;
-    MYSQL_RES *res1;
-
-    res1=mysql_store_result(conn1);
-    row1=mysql_fetch_row(res1);
-    status=mysql_query(conn,command.c_str());
-
-    MYSQL_ROW row;
-    MYSQL_RES* res;
-
-    row_c=atoi(row1[0]);
-    res=mysql_store_result(conn);
-    row=mysql_fetch_row(res);
-    fields_c=mysql_field_count(conn);
-
-    results=new string*[row_c+1];
-
-    for(int i=0;i<row_c;i++){
-        results[i]=new string[fields_c+1];
     }
 
-    
-    while(row!=0){
-        for(int i=0;i<fields_c;i++){
-            results[count][i]=row[i];
-        }
+
+
+    //Function to fetch data from database it uses two querryies one 
+    //count the number of rows and the other one 
+    //fetch the data into the string array
+    string** fetch_data(string command1,string command){
+        MYSQL *conn=connect();
+        MYSQL *conn1=connect();
+
+        int status,status1;
+        status1=mysql_query(conn1,command1.c_str());
+
+        MYSQL_ROW row1;
+        MYSQL_RES *res1;
+
+        res1=mysql_store_result(conn1);
+        row1=mysql_fetch_row(res1);
+        status=mysql_query(conn,command.c_str());
+
+        MYSQL_ROW row;
+        MYSQL_RES* res;
+
+        row_c=atoi(row1[0]);
+        res=mysql_store_result(conn);
         row=mysql_fetch_row(res);
-        count++;
+        fields_c=mysql_field_count(conn);
+
+        results=new string*[row_c+1];
+
+        for(int i=0;i<row_c;i++){
+            results[i]=new string[fields_c+1];
+        }
+
         
-    }
-    results[count]=NULL;
+        while(row!=0){
+            for(int i=0;i<fields_c;i++){
+                results[count][i]=row[i];
+            }
+            row=mysql_fetch_row(res);
+            count++;
+            
+        }
+        results[count]=NULL;
 
-    mysql_close(conn);
-    // conn->close();
+        mysql_close(conn);
+        // conn->close();
 
-    return results;
-    }
+        return results;
+        }
 
     // ~mysql(){
     //     delete results;
@@ -159,6 +149,8 @@ string** fetch_data(string command1,string command){
 };
 
 
+
+//Issuer Class node for storing data of the person issuing the book connected with likedllist of issuers.
 class issuer{
     public:
     issuer *next;
@@ -169,6 +161,8 @@ class issuer{
 
 
 
+
+//Issuer List is lliked list of Issuers.
 class issuerList{
     public:
     issuer *head;
@@ -181,6 +175,7 @@ class issuerList{
         N=0;
     }
 
+    //Function for taking input and creating new issuer
     issuer* input1(){
         issuer *t=new issuer;
         cout<<"Enter issuer Details>>>>\n";
@@ -193,10 +188,11 @@ class issuerList{
 
         t->next=NULL;
         return t;
-
     }
 
-    void issuer_details(){// fthis function inserts the books into the system.
+
+    // this function inserts the books into the system.
+    void issuer_details(){
         N++;
         if(head==NULL){
             head=input1();
@@ -209,7 +205,8 @@ class issuerList{
         }
     }
     
-    void issuer_details_insert(string id,string name,string date){// fthis function inserts the books into the system.
+    // fthis function inserts the books into the system.
+    void issuer_details_insert(string id,string name,string date){
         N++;
 
         issuer *t=new issuer;
@@ -228,7 +225,8 @@ class issuerList{
             tail=t;
         }
     }
-
+    
+    //This function is ussed to return book which was issued.
     void book_return(string s)
     {//s=id;
 
@@ -252,6 +250,7 @@ class issuerList{
         N--;
     }
 
+    //Displays the issuers of a particular book record
     void issuer_display(){
         issuer *t=head;
 
@@ -264,6 +263,8 @@ class issuerList{
 
 
 
+
+//Book Node for storing data of the book
 class book{
     public:
     string book_id;//SELF
@@ -276,13 +277,13 @@ class book{
     int quantity;//quantity
     book *next;//connection pointer
 
-    void book_issuer(){
+    void book_issuer(){//this is a connectig function used while issueing book
         issuer.issuer_details();
     }
-    void book_return(string s){
+    void book_return(string s){//this is a connection fucntion used while returning a book
         issuer.book_return(s);
     }
-    void display(){
+    void display(){//for displaying all the data of a book
         cout<<endl<<book_id<<",\t"<<author<<",\t"<<title<<",\t"
         <<publisher<<",\t"<<no_pages<<",\t"<<genere<<",\t"<<quantity
         <<endl;
@@ -291,6 +292,9 @@ class book{
 
 
 
+
+
+//linked list of Book nodes
 class booklist{
     public:
     book *head;
@@ -329,6 +333,7 @@ class booklist{
         return t;
     }
 
+    // for inserting the data into the list directly
     void book_insert(string id,string auth,string titl,string pub,int pgno, string Gen){
     
         book *t=new book;
@@ -344,6 +349,7 @@ class booklist{
         insert_force(t);
     }
 
+
     void insert(){// fthis function inserts the books into the system.
         if(head==NULL){
             head=input();
@@ -356,6 +362,7 @@ class booklist{
         }
     }
 
+    //this is used when we get values from our database and put it into the list directly
     void insert_force(book *tt){// fthis function inserts the books into the system.
         if(head==NULL){
             head=tt;
@@ -367,6 +374,8 @@ class booklist{
         }
     }
 
+
+    //display all the books into the list
     void display_current(){
         book *t=head;
         while(t){
@@ -378,6 +387,7 @@ class booklist{
 
     }
 
+    //For merging two linked list for merge sort
     book* merge(book* firstNode, book* secondNode,int choice){
         book* merged = new book;
         book* temp = new book;
@@ -457,6 +467,8 @@ class booklist{
         
     }
     
+
+    //For finding Middle element of a linked list
     book* middle(book* head){
 
         book* slow = head;
@@ -470,6 +482,8 @@ class booklist{
 
     }
 
+
+    //Main calling function for merge sort
     book* sort(book* head,int choice)
     {
         if (head->next == NULL) {
@@ -485,6 +499,8 @@ class booklist{
         return finalhead;
     }
 
+
+    //Caller function for sorting 
     void sort_books(){
         cout<<"0->Along Book_Id\n";
         cout<<"1->Along Title\n";
@@ -497,6 +513,8 @@ class booklist{
         display_current();
     }
 
+
+    //like search function to search titles with % and _ just like in mysql 
     void like_search(string text){
         int len=text.length();
         int Lscore=0;
@@ -597,6 +615,8 @@ class booklist{
     }
 
 
+
+    //Searching titiles with just a substring
     void like_search_2(string key){
         book *t=head;
 
@@ -611,6 +631,8 @@ class booklist{
         }
     }
 
+
+    //For inserting a issuer while fetching data from database
     void Book_Issue_insert(string id,string I_id,string name,string date){//This function is to issue a book
 
 
@@ -631,6 +653,9 @@ class booklist{
         }        
     }
 
+
+
+    //for displaying issuers of a particular book by its ID
     void issuer_display(){
         string id;
         cout<<"Enter Book ID:";
@@ -772,6 +797,8 @@ class booklist{
         }
     }
 
+
+    //For directly searching a book by its ID;
     void search(string id){
         book *t=head;
 
@@ -787,6 +814,9 @@ class booklist{
 };
 
 
+
+
+//Cred class is to store username and passwords for logging purposes
 class Cred
 {
 	public:
@@ -796,6 +826,8 @@ class Cred
 	Cred *rchild;
 	int height;
 };
+
+
 
 
 class Queue{
@@ -878,6 +910,9 @@ class Stack{
 };
 
 
+
+//loginData is an AVL tree class for storing login credentials of various admins and users
+
 class loginData{
     public:
     Cred *root;
@@ -898,7 +933,7 @@ class loginData{
         return(CCred);
     }
 
-    void insert(string username,string password){//only admin users can insert new user either admin or normald
+    void insert(string username,string password){//only administrator can insert new user either admin or normal
         root=push(root,username,password);
     }
 
@@ -908,10 +943,11 @@ class loginData{
         cin>>usr;
         cout<<"Enter Password:";
         cin>>psd;
-        
+
+        root=push(root,usr,psd);
     }
 
-    void Delete(string username){//Only Admin users can delete
+    void Delete(string username){//Only Administrators can delete
         root=deleteCred(root,username);
     }
 
@@ -927,17 +963,17 @@ class loginData{
         Cred *x = y->lchild;
         Cred *T2 = x->rchild;
 
-        // Perform rotation
+        // Performing rotation
         x->rchild = y;
         y->lchild = T2;
 
-        // Update heights
+        // Updating heights
         y->height = max(height(y->lchild),
                         height(y->rchild)) + 1;
         x->height = max(height(x->lchild),
                         height(x->rchild)) + 1;
 
-        // Return new root
+        // Returning new root
         return x;
     }
 
@@ -946,17 +982,17 @@ class loginData{
         Cred *y = x->rchild;
         Cred *T2 = y->lchild;
 
-        // Perform rotation
+        // Performing rotation
         y->lchild = x;
         x->rchild = T2;
 
-        // Update heights
+        // Updating heights
         x->height = max(height(x->lchild),
                         height(x->rchild)) + 1;
         y->height = max(height(y->lchild),
                         height(y->rchild)) + 1;
 
-        // Return new root
+        // Returning new root
         return y;
     }
 
@@ -969,16 +1005,16 @@ class loginData{
 
     Cred* push(Cred* Cred, string username,string password)
     {
-        /* 1. Perform the normal BST rotation */
+        /* 1. Performing the normal BST insertion */
         if (Cred == NULL && root==NULL){
             root=newCred(username,password);
             return root;
         }
-        
+       
         if (Cred == NULL ){
             return(newCred(username,password));
         }
-            
+           
         if (username < Cred->username)
             Cred->lchild = push(Cred->lchild, username,password);
         else if (username > Cred->username)
@@ -986,23 +1022,22 @@ class loginData{
         else
             return Cred;
 
-        /* 2. Update height of this ancestor Cred */
-        Cred->height = 1 + max(height(Cred->lchild),
-                            height(Cred->rchild));
+        /* 2. Updating the height of Cred */
+        Cred->height = 1 + max(height(Cred->lchild),height(Cred->rchild));
 
-        /* 3. Get the balance factor of this ancestor
-            Cred to check whether this Cred became
-            unbalanced */
+        /* 3. Get the balance factor of Cred in
+            order to check whether this Cred became
+            unbalanced or not */
         int balance = getBalance(Cred);
 
-        // If this Cred becomes unbalanced, then
-        // there are 4 cases
+        // If the Cred becomes unbalanced, then
+        // there are 4 cases with 4 types of rotation
 
-        // Left Left Case
+        // Left Left case
         if (balance > 1 && username < Cred->lchild->username)
             return rightRotate(Cred);
 
-        // Right Right Case
+        // Right Right case
         if (balance < -1 && username > Cred->rchild->username)
             return leftRotate(Cred);
 
@@ -1013,14 +1048,15 @@ class loginData{
             return rightRotate(Cred);
         }
 
-        // Right Left Case
+        // Right Left case
         if (balance < -1 && username < Cred->rchild->username)
         {
             Cred->rchild = rightRotate(Cred->rchild);
             return leftRotate(Cred);
         }
 
-        /* return the (unchanged) Cred pointer */
+        /* If height of cred is balanced then
+        return the (unchanged) Cred pointer */
         return Cred;
     }
 
@@ -1028,7 +1064,8 @@ class loginData{
     {
         Cred* current = CCred;
 
-        /* loop down to find the leftmost leaf */
+        /* loop down to find the leftmost node of the right
+         subtree in order to find inorder succesor */
         while (current->lchild != NULL)
             current = current->lchild;
 
@@ -1037,7 +1074,7 @@ class loginData{
 
     Cred* deleteCred(Cred* root, string username)
     {
-        // first: Do simple BST deletion in the tree
+        // 1.Performing simple BST deletion in the tree
         if (root == NULL)
             return root;
 
@@ -1048,7 +1085,7 @@ class loginData{
             root->lchild = deleteCred(root->lchild, username);
 
         // If the username to be deleted is greater
-        // than the root's username, then it lies
+        // than the root->username, then it lies
         // in right subtree
         else if( username > root->username )
             root->rchild = deleteCred(root->rchild, username);
@@ -1058,12 +1095,9 @@ class loginData{
         else
         {
             // Cred with only one child or no child
-            if( (root->lchild == NULL) ||
-                (root->rchild == NULL) )
+            if( (root->lchild == NULL) || (root->rchild == NULL) )
             {
-                Cred *temp = root->lchild ?
-                            root->lchild :
-                            root->rchild;
+                Cred *temp = root->lchild ?root->lchild :root->rchild;
 
                 // No child case
                 if (temp == NULL)
@@ -1072,8 +1106,7 @@ class loginData{
                     root = NULL;
                 }
                 else // One child case
-                *root = *temp; // Copy the contents of
-                            // the non-empty child
+                *root = *temp; // Copy the contents of the non-empty child
                 free(temp);
             }
             else
@@ -1097,19 +1130,19 @@ class loginData{
         if (root == NULL)
         return root;
 
-        // STEP 2: UPDATE HEIGHT OF THE CURRENT Cred
+        // 2.UPDATE HEIGHT OF THE CURRENT Cred
         root->height = 1 + max(height(root->lchild),
                             height(root->rchild));
 
-        // STEP 3: GET THE BALANCE FACTOR OF
-        // THIS Cred (to check whether this
-        // Cred became unbalanced)
+        // 3.Get the balance factor of Cred in
+        // order to check whether this Cred became
+        // unbalanced or not */
         int balance = getBalance(root);
 
         // If this Cred becomes unbalanced,
-        // then there are 4 cases
+        // then there are 4 cases with 4 types of rotation
 
-        // Left Left Case
+        // Left Left case
         if (balance > 1 &&
             getBalance(root->lchild) >= 0)
             return rightRotate(root);
@@ -1143,7 +1176,7 @@ class loginData{
         Stack st(110);
 
         while(t!=NULL || !st.isempty()){
-            
+           
             if(t!=NULL){
                 cout<<t->username<<" ";
                 st.push(t);
@@ -1157,13 +1190,13 @@ class loginData{
         }
 
     }
-        
+       
     void inorder(){
         Cred *t=root;
         Stack st(100);
 
         while(t!=NULL || !st.isempty()){
-            
+           
             if(t!=NULL){
                 st.push(t);
                 t=t->lchild;
@@ -1177,9 +1210,9 @@ class loginData{
         }
 
     }
-    
+   
     void levelorder(){
-        Cred *t=root;   
+        Cred *t=root;  
         Queue q(100);
         q.enqueue(t);
         while(!q.isempty()){
@@ -1190,7 +1223,7 @@ class loginData{
                 if(t->lchild!=NULL){
                     q.enqueue(t->lchild);
                 }
-                
+               
                 if(t->rchild!=NULL){
                     q.enqueue(t->rchild);
                 }
